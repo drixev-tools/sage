@@ -11,8 +11,8 @@ import {
 import chalk from "chalk";
 import ora from "ora";
 import {
+  generateSummaryOfCommits,
   suggestCommitMessage,
-  suggestSummaryOf,
 } from "../services/ai.service";
 import { saveCommit } from "../services/db.service";
 import { APPNAME } from "../lib/constants";
@@ -42,18 +42,19 @@ export function registerCommitCommand(program: Command): void {
         spinner.info("Getting your changes...");
         const files = getChangedFiles();
 
+        const CONCURRENCY = 3;
         const summary: string[] = [];
 
-        for (const file of files) {
-          const diffFile = getGitDiffPerFile(file);
-
-          const message = await suggestCommitMessage(diffFile);
-
-          summary.push(message);
+        for (let i = 0; i < files.length; i += CONCURRENCY) {
+          const batch = files.slice(i, i + CONCURRENCY);
+          const batchResults = await Promise.all(
+            batch.map((file) => suggestCommitMessage(getGitDiffPerFile(file))),
+          );
+          summary.push(...batchResults);
         }
 
         spinner.info("Generating the summary...");
-        const message = await suggestSummaryOf(summary);
+        const message = await generateSummaryOfCommits(summary);
         spinner.succeed("Commit message ready!");
 
         console.log(chalk.bold("\nSuggested commit:\n"));
@@ -64,7 +65,7 @@ export function registerCommitCommand(program: Command): void {
           const committed = commitMessage(message);
 
           if (!committed) {
-            console.log(chalk.red("Commit fails!"));
+            console.log(chalk.red("Commit fails!. Try again!."));
             process.exit(1);
           }
 

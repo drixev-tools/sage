@@ -8,6 +8,7 @@ import { APPNAME } from "../lib/constants";
 import { registerConfigCommand } from "../commands/config";
 
 import { homedir } from "os";
+import { registerReviewCommand } from "../commands/review";
 
 const program = new Command();
 
@@ -29,6 +30,7 @@ registerConfigCommand(program);
 registerCommitCommand(program);
 registerSummaryCommand(program);
 registerRiskCommand(program);
+registerReviewCommand(program);
 //stats
 
 program.parse();

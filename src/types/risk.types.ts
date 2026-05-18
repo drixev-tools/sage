@@ -1,11 +1,11 @@
-type Severety = "low|medium|high";
+type Severity = "low" | "medium" | "high";
 
-export interface RiskSummary {
+export interface RiskDetail {
   file: string;
   message: {
     summary: string;
-    risks: string[];
-    severity: Severety;
-    recommendations: [];
+    risks: { id: number; title: string; description: string }[];
+    severity: Severity;
+    recommendations: string[];
   };
 }

@@ -24,7 +24,7 @@ export function registerConfigCommand(program: Command) {
         console.log(chalk.bgCyan("Your current settings are: \n"));
         if (options.all) {
           Object.entries(config).forEach(([key, val]) => {
-            console.log(chalk.cyan(`\t${key}: ${val}\n`));
+            console.log(chalk.cyan(`\t*${key}: ${val}`));
           });
           process.exit(0);
         }
