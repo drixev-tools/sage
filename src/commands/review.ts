@@ -1,79 +1,88 @@
 import chalk from "chalk";
-import { Command, Option } from "commander";
+import { Command } from "commander";
 import ora from "ora";
-import { APPNAME } from "../lib/constants";
-import { isInsideGitRepo, getGitDiffPerFile } from "../lib/git-helpers";
+import {
+  isInsideGitRepo,
+  getGitDiff,
+  getGitDiffPerFile,
+  getAllChangedFileNames,
+  getWorkingTreeDiffPerFile,
+} from "../lib/git.helpers";
 import { reviewChanges } from "../services/ai.service";
 import { generateDoc } from "../services/file.service";
+import { APPNAME } from "../lib/constants";
 
 export function registerReviewCommand(program: Command) {
   program
     .command("review")
-    .description("Generate an AI review for a specific file")
-    .addOption(
-      new Option(
-        "-g, --generate [generate]",
-        "Generate a readme document for the report",
-      )
-        .choices(["true", "false"])
-        .default(false),
+    .description("Review code quality: readability, complexity, duplication and best practices")
+    .option("-f, --file <file>", "Review a specific file's staged diff")
+    .option(
+      "--changes",
+      "Review all uncommitted changes (staged + unstaged)",
     )
-    .addOption(
-      new Option(
-        "-c, --console [console]",
-        "Print the analize risk report in the console",
-      )
-        .choices(["true", "false"])
-        .default(true),
-    )
-    .option("-f, --file <file>", "Path of the file to be analized")
+    .option("-g, --generate", "Save the review to a markdown file")
     .action(
-      async (options: {
-        generate: boolean;
-        console: boolean;
-        file: string;
-      }) => {
+      async (options: { file?: string; changes: boolean; generate: boolean }) => {
         if (!isInsideGitRepo()) {
           console.error(chalk.red("Not inside a Git repository\n"));
-          process.exit();
-        }
-
-        if (!options.file) {
-          console.error(
-            chalk.red(
-              "You MUST specify the path of the file before use this command",
-            ),
-          );
           process.exit(1);
         }
 
-        const spinner = ora("Analizing your changes...").start();
+        const spinner = ora("Collecting changes...").start();
         try {
-          const diff = getGitDiffPerFile(options.file);
+          let diff: string;
+          let label: string;
+
+          if (options.file) {
+            diff = options.changes
+              ? getWorkingTreeDiffPerFile(options.file)
+              : getGitDiffPerFile(options.file);
+            label = options.file;
+          } else if (options.changes) {
+            const files = getAllChangedFileNames();
+            if (!files.length) {
+              spinner.warn("No uncommitted changes found");
+              console.log(
+                chalk.dim("No tracked file changes detected in the working tree.\n"),
+              );
+              process.exit(0);
+            }
+            const fileDiffs = files
+              .map((f) => ({ file: f, diff: getWorkingTreeDiffPerFile(f) }))
+              .filter((e) => e.diff.trim().length > 0)
+              .sort((a, b) => b.diff.length - a.diff.length);
+            diff = fileDiffs.map((e) => e.diff).join("\n");
+            label = `${fileDiffs.length} changed file(s)`;
+          } else {
+            diff = getGitDiff();
+            label = "staged changes";
+          }
 
           if (!diff.trim()) {
-            console.error(chalk.yellow("Not staged changes found\n"));
+            spinner.warn("No changes found to review");
             console.log(
-              chalk.dim(`Run: git add <files> before use ${APPNAME} commitn\n`),
+              chalk.dim(
+                `Run: git add <files> before using ${APPNAME} review, or pass --changes\n`,
+              ),
             );
             process.exit(0);
           }
 
-          spinner.info("Reviewing your changes...");
-
+          spinner.info(`Reviewing ${label}...`);
           const message = await reviewChanges(diff);
 
-          if (options.console) {
-            console.log(chalk.cyan.bold("\nAnalize:\n"));
-            console.log(chalk.cyan(message));
-          }
+          spinner.succeed("Review ready!\n");
+
+          console.log(
+            chalk.bold.cyan("── Code Review " + "─".repeat(47) + "\n"),
+          );
+          console.log(`${chalk.white(message)}\n`);
 
           if (options.generate) {
             const destinyPath = await generateDoc(message, "review");
-            console.info(chalk.greenBright(`[Path]: ${destinyPath}`));
+            console.info(chalk.greenBright(`[Report saved]: ${destinyPath}`));
           }
-
-          spinner.succeed("Summary message ready!");
         } catch (error) {
           spinner.fail("Something went wrong");
           console.error(chalk.red((error as Error).message));

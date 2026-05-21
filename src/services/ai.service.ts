@@ -1,10 +1,11 @@
 import { getConfig } from "./config.service";
-import { IAAgent } from "../providers";
+import { IAAgent } from "../llm";
 import {
   getCommitMessage,
+  getCommitMessageFromContext,
   getReviewMessage,
   getSummaryRisks,
-  getSummaryMessageOfCommits,
+  getFileRisk,
   getSummaryOfRisk,
   getSummaryPRMessage,
 } from "../lib/prompts";
@@ -12,7 +13,7 @@ import { RiskDetail } from "../types/risk.types";
 
 async function getLanguage(): Promise<string> {
   const { lang } = await getConfig();
-  return lang ?? "es";
+  return lang ?? "en";
 }
 
 async function getClient(): Promise<IAAgent> {
@@ -30,15 +31,15 @@ export async function suggestCommitMessage(diff: string): Promise<string> {
   return message;
 }
 
-export async function generateSummaryOfCommits(
-  messages: string[],
+export async function suggestCommitMessageFromContext(
+  stat: string,
+  topDiff: string,
 ): Promise<string> {
   const client = await getClient();
-  const message = await client.create({
-    max_tokens: 1024,
-    message: getSummaryMessageOfCommits(messages, await getLanguage()),
+  return client.create({
+    max_tokens: 256,
+    message: getCommitMessageFromContext(stat, topDiff, await getLanguage()),
   });
-  return message;
 }
 
 export async function generatePRSummary(commits: string[]): Promise<string> {
@@ -72,6 +73,19 @@ export async function checkRiskChanges(
     removeJumpLine: true,
   });
 
+  return { file, message };
+}
+
+export async function checkFileRisk(
+  file: string,
+  content: string,
+): Promise<{ file: string; message: string }> {
+  const client = await getClient();
+  const message = await client.create({
+    max_tokens: 2048,
+    message: getFileRisk(content, file, await getLanguage()),
+    removeJumpLine: true,
+  });
   return { file, message };
 }
 

@@ -7,23 +7,17 @@ import { registerRiskCommand } from "../commands/risk";
 import { APPNAME } from "../lib/constants";
 import { registerConfigCommand } from "../commands/config";
 
-import { homedir } from "os";
 import { registerReviewCommand } from "../commands/review";
+import chalk from "chalk";
 
 const program = new Command();
 
 program
   .name(APPNAME)
   .description(
-    "IA-powered git assistant - smarter commits, PR summaries and code review",
+    "IA-powered git agent - smarter commits, PR summaries, code review and risk",
   )
   .version("0.1.0");
-
-// MODELS AVAILABLE
-// # CLAUDE
-// # GPT
-
-console.log(`PATH CONFIG: ${homedir()}`);
 
 registerAuthCommand(program);
 registerConfigCommand(program);
@@ -31,6 +25,6 @@ registerCommitCommand(program);
 registerSummaryCommand(program);
 registerRiskCommand(program);
 registerReviewCommand(program);
-//stats
+// stats - pending
 
 program.parse();

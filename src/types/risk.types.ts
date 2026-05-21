@@ -1,3 +1,6 @@
+
+export type Mode = "app" | "changes" | "staged";
+
 type Severity = "low" | "medium" | "high";
 
 export interface RiskDetail {

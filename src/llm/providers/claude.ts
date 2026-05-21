@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { Config } from "../types/config.types";
-import { removeJsonTag, removeJump } from "../lib/git-helpers";
+import { Config } from "../../types/config.types";
+import { removeJsonTag, removeJump } from "../../lib/git.helpers";
 
 export class IAClaudeAgent {
   private _config: Config = {};
@@ -22,16 +22,17 @@ export class IAClaudeAgent {
     max_tokens: number,
     removeJumpLine?: boolean,
   ) {
-    const message = await this.getClaudeIAClient().messages.create({
-      model: this._config.model as string,
-      max_tokens: max_tokens,
-      messages: [
-        {
-          role: "user",
-          content,
-        },
-      ],
-    });
+    let message: Anthropic.Messages.Message;
+    try {
+      message = await this.getClaudeIAClient().messages.create({
+        model: this._config.model as string,
+        max_tokens: max_tokens,
+        messages: [{ role: "user", content }],
+      });
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : String(err);
+      throw new Error(`Claude API request failed: ${detail}`);
+    }
 
     const result = this.cleanContent(message);
     return removeJumpLine ? removeJump(result) : result;

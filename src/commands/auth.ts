@@ -12,7 +12,7 @@ import {
 export function registerAuthCommand(program: Command): void {
   program
     .command("auth")
-    .description(`Configure your IA agent to use with ${APPNAME}`)
+    .description("Set up your AI provider, API key, model and language preferences")
     .addOption(
       new Option(
         "-a, --agent <agent>",
@@ -41,10 +41,21 @@ export function registerAuthCommand(program: Command): void {
         "The maximum number of times that the client will retry a request in case of a temporary failure, like a network error or a 5XX error from the server.",
       ).default(2),
     )
+    .option("-u, --url <url>", "Define the BaseURL to use with the agent")
     .action(async (options: Config) => {
       const spinner = ora("Updating your configuration...").start();
 
       try {
+        if (options.url) {
+          try {
+            new URL(options.url);
+          } catch {
+            spinner.fail("Invalid URL");
+            console.error(chalk.red(`Invalid URL format: "${options.url}". Provide a valid URL, e.g. http://localhost:11434`));
+            process.exit(1);
+          }
+        }
+
         const config: Config = {
           agent: options.agent as Agents,
           apikey: options.apikey,
@@ -52,6 +63,7 @@ export function registerAuthCommand(program: Command): void {
           lang: options.lang,
           timeout: options.timeout,
           maxRetries: options.maxRetries,
+          url: options.url
         };
 
         const status = await saveConfig(config);
@@ -77,18 +89,3 @@ export function registerAuthCommand(program: Command): void {
       }
     });
 }
-
-/*
-console.log(chalk.green(`Using the following settings:\n`));
-    console.log(
-      chalk.green(
-        `\t
-          agent:${this._config.agent}
-          model: ${this._config.model}
-          timeout: ${this._config.timeout}
-          maxRetries: ${this._config.maxRetries}
-          lang: ${this._config.lang}
-        `,
-      ),
-    );
-     */

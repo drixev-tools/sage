@@ -1,16 +1,16 @@
-import { Command } from "commander";
+import { Command, Option } from "commander";
 import { getConfig } from "../services/config.service";
 import chalk from "chalk";
 
 export function registerConfigCommand(program: Command) {
   program
     .command("config")
-    .description("Get your current saved settings")
-    .option("-a, --all", "")
-    .option("-k, --apikey", "")
-    .option("-m, --model", "")
-    .option("-t, --timeout", "")
-    .option("-r, --maxRetries", "")
+    .description("Display your current AI provider configuration")
+    .option("-a, --all", "Get all settings")
+    .option("-k, --apikey", "Get ApiKey value")
+    .option("-m, --model", "Get Model value")
+    .option("-t, --timeout", "Get Timeout value")
+    .option("-r, --maxRetries", "Get MaxRetries value")
     .action(
       async (options: {
         all: boolean;
@@ -20,9 +20,11 @@ export function registerConfigCommand(program: Command) {
         maxRetries: boolean;
       }) => {
         const config = await getConfig();
+        const specificFlag = options.apikey || options.model || options.timeout || options.maxRetries;
+        const showAll = options.all || !specificFlag;
 
         console.log(chalk.bgCyan("Your current settings are: \n"));
-        if (options.all) {
+        if (showAll) {
           Object.entries(config).forEach(([key, val]) => {
             console.log(chalk.cyan(`\t*${key}: ${val}`));
           });

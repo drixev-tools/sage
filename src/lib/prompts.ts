@@ -23,14 +23,13 @@ export const getCommitMessage = (diff: string, language: string) => {
     Given the following git diff, generate exactly ONE commit message following the Conventional Commits specification.
 
     Rules:
+    - Return ONLY the commit message line. No explanations, no quotes, no markdown.
     - The message MUST be written in '${sanitizeLanguage(language)}'
     - Format: type(scope): short description (max 73 chars total)
     - Valid types: feat, fix, chore, docs, refactor, test, style, perf, ci, build
     - Use imperative mood ("add" not "added", "fix" not "fixed")
     - The scope is optional — only include it if clearly identifiable from the diff
     - For breaking changes, append '!' after the type: feat!: ...
-    - Be specific: describe WHAT changed and WHY if non-obvious
-    - Return ONLY the commit message line. No explanations, no quotes, no markdown.
 
     Git diff:
     <diff>
@@ -39,27 +38,35 @@ export const getCommitMessage = (diff: string, language: string) => {
   `;
 };
 
-export const getSummaryMessageOfCommits = (
-  messages: string[],
+export const getCommitMessageFromContext = (
+  stat: string,
+  topDiff: string,
   language: string,
 ) => {
-  const safe = messages.map(sanitizeText);
   return `
-    You are a Git expert. Given the following list of commit messages, generate ONE consolidated commit message
-    that best represents all the changes together.
+    You are a Git expert specializing in writing clean, conventional commit messages.
+    The staged changes are too large to show in full. You have a complete file-change summary
+    and the full diff for the most-changed files to inform your message.
 
     Rules:
+    - Return ONLY the commit message line. No explanations, no quotes, no markdown, no json. Only string message.
     - The message MUST be written in '${sanitizeLanguage(language)}'
     - Format: type(scope): short description (max 73 chars total)
-    - Choose the type that reflects the most impactful change (feat > fix > refactor > chore)
+    - Valid types: feat, fix, chore, docs, refactor, test, style, perf, ci, build
     - Use imperative mood ("add" not "added", "fix" not "fixed")
-    - If the commits span multiple scopes, omit the scope or use a broad one
-    - Return ONLY the commit message line. No explanations, no quotes, no markdown.
+    - The scope is optional — only include it if clearly identifiable from the changes
+    - For breaking changes, append '!' after the type: feat!: ...
 
-    Commits:
-    <commits>
-    ${JSON.stringify(safe, null, 2)}
-    </commits>
+
+    Change summary (all staged files):
+    <stat>
+    ${sanitizeDiff(stat)}
+    </stat>
+
+    Full diff (most-changed files, may be partial):
+    <diff>
+    ${sanitizeDiff(topDiff)}
+    </diff>
   `;
 };
 
@@ -84,6 +91,42 @@ export const getSummaryRisks = (diff: string, language: string) => {
     Return this exact JSON structure:
     {
       "summary": "Brief overall assessment of the changes and their risk profile",
+      "severity": "low|medium|high",
+      "risks": [
+        {
+          "id": 1,
+          "title": "Short risk title",
+          "description": "Detailed explanation of the risk and why it matters"
+        }
+      ],
+      "recommendations": [
+        "Actionable string recommendation addressing the risks above"
+      ]
+    }
+  `;
+};
+
+export const getFileRisk = (content: string, filename: string, language: string) => {
+  return `
+    You are a senior software engineer and security reviewer.
+    Analyze the following source file for risks, vulnerabilities, and code quality issues.
+
+    Rules:
+    - The response MUST be written in '${sanitizeLanguage(language)}'
+    - Be specific and grounded in the actual code — do not speculate beyond what is shown
+    - Identify security vulnerabilities, logic errors, poor practices, and operational risks
+    - For each risk, suggest a concrete actionable recommendation
+    - If no meaningful risks are found, return severity "low" with an empty risks array
+    - Return ONLY a valid JSON object. No markdown, no code blocks, no extra text.
+
+    File: ${filename}
+    <content>
+    ${sanitizeDiff(content)}
+    </content>
+
+    Return this exact JSON structure:
+    {
+      "summary": "Brief overall assessment of the file and its risk profile",
       "severity": "low|medium|high",
       "risks": [
         {
@@ -147,8 +190,8 @@ export const getSummaryPRMessage = (commits: string[], language: string) => {
 
 export const getReviewMessage = (diff: string, language: string) => {
   return `
-    You are a senior software engineer performing a code review focused on risk and correctness.
-    Review the following git diff and flag any potential issues.
+    You are a senior software engineer performing a code quality review.
+    Review the following git diff and give actionable feedback to help the author write better code.
 
     Rules:
     - The review MUST be written in '${sanitizeLanguage(language)}'
@@ -157,15 +200,16 @@ export const getReviewMessage = (diff: string, language: string) => {
     - Use Markdown formatting
 
     Focus on:
-    - Security issues (exposed secrets, insecure auth, missing input validation, unsafe permissions)
-    - Breaking changes (API contracts, function signatures, database schema)
-    - Missing or insufficient error handling
-    - Database migrations (irreversible changes, missing rollback)
-    - Environment variable additions or removals
-    - Performance regressions
+    - Readability: unclear naming, confusing logic, missing or misleading comments
+    - Complexity: functions doing too much, deep nesting, hard-to-follow control flow
+    - Duplication: repeated logic that should be extracted or reused
+    - Maintainability: brittle patterns, magic numbers/strings, tight coupling
+    - Correctness: edge cases not handled, wrong assumptions, off-by-one errors
+    - Test coverage: untested logic, missing assertions, hard-to-test structure
+    - Best practices: idiomatic usage for the language/framework in use
 
-    Format your response as a short bullet list, one item per issue found.
-    If no significant issues are found, respond with: "No critical issues found."
+    Format your response as a bullet list grouped by file, one item per concern.
+    If the code looks good, respond with: "No quality issues found."
 
     Diff:
     <diff>

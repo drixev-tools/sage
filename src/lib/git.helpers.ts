@@ -1,4 +1,7 @@
 import { execSync } from "child_process";
+import { readFileSync } from "fs";
+import path from "path";
+import { SOURCE_EXTENSIONS } from "./constants";
 
 export function getGitDiff(): string {
   try {
@@ -52,10 +55,65 @@ export function getChangedFiles(): string[] {
   }
 }
 
+export function getGitDiffStat(): string {
+  try {
+    return execSync("git diff --cached --stat", { encoding: "utf-8" });
+  } catch {
+    return "";
+  }
+}
+
+export function getAllChangedFileNames(): string[] {
+  try {
+    const staged = execSync("git diff --cached --name-only", { encoding: "utf-8" })
+      .trim().split("\n").filter(Boolean);
+    const unstaged = execSync("git diff --name-only", { encoding: "utf-8" })
+      .trim().split("\n").filter(Boolean);
+    return [...new Set([...staged, ...unstaged])];
+  } catch {
+    return [];
+  }
+}
+
+export function getWorkingTreeDiffPerFile(file: string): string {
+  const safe = file.replace(/"/g, "");
+  try {
+    const diff = execSync(`git diff HEAD -- "${safe}"`, { encoding: "utf-8" });
+    if (diff.trim()) return diff;
+    // fallback for new files that have no HEAD entry yet
+    return execSync(`git diff --cached -- "${safe}"`, { encoding: "utf-8" });
+  } catch {
+    return "";
+  }
+}
+
+export function getAllTrackedFiles(): string[] {
+  try {
+    const output = execSync("git ls-files", { encoding: "utf-8" });
+    return output
+      .trim()
+      .split("\n")
+      .filter(Boolean)
+      .filter((f) => {
+        const ext = path.extname(f).toLowerCase();
+        return SOURCE_EXTENSIONS.has(ext) && !f.endsWith(".d.ts");
+      });
+  } catch {
+    return [];
+  }
+}
+
+export function getFileContent(file: string): string {
+  try {
+    return readFileSync(file, "utf-8").slice(0, 50_000);
+  } catch {
+    return "";
+  }
+}
+
 export function getChangedFilesCount(): number {
   try {
-    const files = getChangedFiles;
-    return files.length;
+    return getChangedFiles().length;
   } catch {
     return 0;
   }
@@ -83,7 +141,7 @@ export function removeJump(message:string){
 export function commitMessage(message: string) {
   const clean = message.replace(/"/g, '\\"');
   try {
-    execSync(`git commit -m ${clean}`, {
+    execSync(`git commit -m "${clean}"`, {
       stdio: "inherit",
     });
     return true;

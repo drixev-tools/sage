@@ -1,11 +1,11 @@
-import { Config } from "../types/config.types";
-import { openaiAgent } from "./openia";
-import { IAClaudeAgent } from "./claude";
+import { Agents, Config } from "../types/config.types";
+import { openaiAgent } from "./providers/openai";
+import { IAClaudeAgent } from "./providers/claude";
 import { APPNAME } from "../lib/constants";
 
 export class IAAgent {
   private _config: Config = {};
-  private _provider: "claude" | "openai" = "claude";
+  private _provider: Agents = "claude";
 
   constructor(config: Config) {
     this._config = config;
@@ -26,6 +26,7 @@ export class IAAgent {
     }
 
     switch (this._provider) {
+      case "ollama":
       case "openai":
         return new openaiAgent(this._config);
       case "claude":
@@ -40,12 +41,18 @@ export class IAAgent {
     removeJumpLine?: boolean;
   }) {
     switch (this._provider) {
+      case "ollama":
+        return (this.getIAClient() as openaiAgent).createOllamaRequest({
+          messages: [{ role: "user", content: options.message }],
+          max_tokens: options.max_tokens,
+          removeJumpLine: options.removeJumpLine,
+        });
       case "openai":
-        return (this.getIAClient() as openaiAgent).createopenaiRequest(
-          options.message,
-          options.max_tokens,
-          options.removeJumpLine,
-        );
+        return (this.getIAClient() as openaiAgent).createOpenaiRequest({
+          messages: [{ role: "user", content: options.message }],
+          max_tokens: options.max_tokens,
+          removeJumpLine: options.removeJumpLine,
+        });
       case "claude":
       default:
         return (this.getIAClient() as IAClaudeAgent).createClaudeRequest(
@@ -56,5 +63,3 @@ export class IAAgent {
     }
   }
 }
-
-export class Provider {}

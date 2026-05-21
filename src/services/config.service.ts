@@ -16,12 +16,12 @@ async function readConfig(): Promise<Config> {
   }
 }
 
-function writeConfig(config: Config): void {
+async function writeConfig(config: Config): Promise<void> {
   if (!existsSync(HOME_DIR)) {
-    mkdir(HOME_DIR, { recursive: true });
+    await mkdir(HOME_DIR, { recursive: true });
   }
 
-  writeFile(CONFIG_PATH, JSON.stringify(config, null, 2), {
+  await writeFile(CONFIG_PATH, JSON.stringify(config, null, 2), {
     mode: 384,
   });
 }
@@ -36,8 +36,9 @@ export async function saveConfig(updConfig: Config): Promise<{
   const existsApiKey = updConfig.apikey || config.apikey;
   const existsAgent = updConfig.agent || config.agent;
   const existsModel = updConfig.model || config.model;
+  const existsUrl = updConfig.url || config.url;
 
-  const agent = updConfig.agent || config.agent || "";
+  const agent = updConfig.agent || config.agent || "ollama";
 
   if (existsAgent && !AGENTS_SUPPORTED.includes(agent)) {
     return {
@@ -59,6 +60,14 @@ export async function saveConfig(updConfig: Config): Promise<{
     if (!existsModel) warnings.push(`\t-m : model is required\n`);
   }
 
+  if (agent === "ollama" && !existsUrl) {
+    return {
+      success: false,
+      error: "To use Ollama you need to add the url value",
+      warnings,
+    };
+  }
+
   const newConfig = {
     ...config,
     ...Object.fromEntries(
@@ -68,7 +77,7 @@ export async function saveConfig(updConfig: Config): Promise<{
     ),
   };
 
-  writeConfig(newConfig);
+  await writeConfig(newConfig);
   return {
     success: true,
     warnings,
