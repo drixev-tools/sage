@@ -1,5 +1,8 @@
 # sage
 
+[![npm version](https://img.shields.io/npm/v/@drixev/sage.svg)](https://www.npmjs.com/package/@drixev/sage)
+[![License](https://img.shields.io/npm/l/@drixev/sage.svg)](LICENSE)
+
 > AI-powered Git assistant CLI — smarter commits, PR summaries, code reviews & risk analysis
 
 Built with **Node.js + TypeScript**, supports **Claude, OpenAI, and Ollama**, and stores your commit history locally with **SQLite**.
