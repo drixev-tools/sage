@@ -6,7 +6,9 @@ import chalk from "chalk";
 export function registerStatsCommand(program: Command) {
   program
     .command("stats")
-    .description("Shows your local commit history tracked by sage: total commits, most used commit types, and recent activity.")
+    .description(
+      "Shows your local commit history tracked by sage.",
+    )
     .action(async () => {
       const spinner = ora("Generating the stats...").start();
       try {
@@ -15,7 +17,11 @@ export function registerStatsCommand(program: Command) {
         spinner.info("Stats generated!");
 
         console.info(chalk.cyan(`Total Commits: ${stats.totalCommits}`));
-        console.info(chalk.cyan(`Total Types:`));
+        console.info(
+          chalk.cyan(
+            `Total Types: ${stats.topTypes.length === 0 ? "[]" : null}`,
+          ),
+        );
         stats.topTypes.forEach((tp, index) => {
           if (index == 0) {
             console.info(chalk.cyan(`\t| Type    | Count |`));
@@ -24,7 +30,11 @@ export function registerStatsCommand(program: Command) {
           console.info(chalk.cyan(`\t| ${tp.type}    | ${tp.count} |`));
           console.info(chalk.cyan(`\t| -------------------- |`));
         });
-        console.info(chalk.cyan(`Recent Commits:`));
+        console.info(
+          chalk.cyan(
+            `Recent Commits: ${stats.recentCommits.length === 0 ? "[]" : null}`,
+          ),
+        );
         stats.recentCommits.forEach((rc, index) => {
           if (index == 0) {
             console.info(
