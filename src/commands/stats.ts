@@ -6,9 +6,7 @@ import chalk from "chalk";
 export function registerStatsCommand(program: Command) {
   program
     .command("stats")
-    .description(
-      "Shows your local commit history tracked by sage.",
-    )
+    .description("Shows your local commit history tracked by sage.")
     .action(async () => {
       const spinner = ora("Generating the stats...").start();
       try {
@@ -19,37 +17,27 @@ export function registerStatsCommand(program: Command) {
         console.info(chalk.cyan(`Total Commits: ${stats.totalCommits}`));
         console.info(
           chalk.cyan(
-            `Total Types: ${stats.topTypes.length === 0 ? "[]" : null}`,
+            `\nTotal Types: ${stats.topTypes.length === 0 ? "[]" : ""}`,
           ),
         );
-        stats.topTypes.forEach((tp, index) => {
-          if (index == 0) {
-            console.info(chalk.cyan(`\t| Type    | Count |`));
-            console.info(chalk.cyan(`\t--------------------`));
-          }
-          console.info(chalk.cyan(`\t| ${tp.type}    | ${tp.count} |`));
-          console.info(chalk.cyan(`\t| -------------------- |`));
+        console.info(chalk.cyan(`\t${"-".repeat(45)}`));
+        stats.topTypes.forEach((tp) => {
+          console.info(chalk.cyan(`\tType: ${tp.type}`));
+          console.info(chalk.cyan(`\tCount: ${tp.count}`));
+          console.info(chalk.cyan(`\t${"-".repeat(45)}`));
         });
+
         console.info(
           chalk.cyan(
-            `Recent Commits: ${stats.recentCommits.length === 0 ? "[]" : null}`,
+            `\nRecent Commits: ${stats.recentCommits.length === 0 ? "[]" : ""}`,
           ),
         );
-        stats.recentCommits.forEach((rc, index) => {
-          if (index == 0) {
-            console.info(
-              chalk.cyan(
-                `\t| Message    \t\t\t| Repository\t\t | Created_At\t |`,
-              ),
-            );
-            console.info(chalk.cyan(`\t| -------------------- |`));
-          }
-          console.info(
-            chalk.cyan(
-              `\t| ${rc.message}    \t\t\t| ${rc.repo}\t\t | ${rc.created_at}\t |`,
-            ),
-          );
-          console.info(chalk.cyan(`\t| -------------------- |`));
+        console.info(chalk.cyan(`\t${"-".repeat(45)}`));
+        stats.recentCommits.forEach((rc) => {
+          console.info(chalk.cyan(`\tMessage: ${rc.message}`));
+          console.info(chalk.cyan(`\tRepository: ${rc.repo}`));
+          console.info(chalk.cyan(`\tCreated At: ${rc.created_at}`));
+          console.info(chalk.cyan(`\t${"-".repeat(45)}`));
         });
       } catch (error) {
         spinner.fail("Something went wrong");
