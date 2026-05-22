@@ -4,23 +4,15 @@ import {
   getChangedFiles,
   getChangedFilesCount,
   getCurrentRepo,
-  getGitDiff,
   getGitDiffPerFile,
   getGitDiffStat,
   isInsideGitRepo,
 } from "../lib/git.helpers";
 import chalk from "chalk";
 import ora from "ora";
-import {
-  suggestCommitMessage,
-  suggestCommitMessageFromContext,
-} from "../services/ai.service";
+import { suggestCommitMessageFromContext } from "../services/ai.service";
 import { saveCommit } from "../services/db.service";
-import {
-  APPNAME,
-  FALLBACK_DIFF_BUDGET,
-  SINGLE_CALL_THRESHOLD,
-} from "../lib/constants";
+import { APPNAME, FALLBACK_DIFF_BUDGET } from "../lib/constants";
 
 export function registerCommitCommand(program: Command): void {
   program
@@ -35,39 +27,29 @@ export function registerCommitCommand(program: Command): void {
         process.exit();
       }
 
-      const diff = getGitDiff();
-      if (!diff.trim()) {
-        console.error(chalk.yellow("Not staged changes found\n"));
+      const files = getChangedFiles();
+      if (files.length === 0) {
+        console.error(chalk.yellow("No staged changes found\n"));
         console.log(
-          chalk.dim(`Run: git add <files> before use ${APPNAME} commitn\n`),
+          chalk.dim(`Run: git add <files> before use ${APPNAME} commit\n`),
         );
         process.exit(0);
       }
 
-      const spinner = ora("Analizing your changes...").start();
+      const spinner = ora("Analyzing your changes...").start();
       try {
-        let message: string;
+        const stat = getGitDiffStat();
+        const fileDiffs = files.map((f) => getGitDiffPerFile(f));
+        fileDiffs.sort((a, b) => b.length - a.length);
 
-        if (diff.length <= SINGLE_CALL_THRESHOLD) {
-          spinner.info("Generating commit message...");
-          message = await suggestCommitMessage(diff);
-        } else {
-          spinner.info("Large diff detected — using stat + top files...");
-          const stat = getGitDiffStat();
-          const files = getChangedFiles();
-
-          const fileDiffs = files.map((f) => getGitDiffPerFile(f));
-          fileDiffs.sort((a, b) => b.length - a.length);
-
-          let topDiff = "";
-          for (const fd of fileDiffs) {
-            if (topDiff.length + fd.length > FALLBACK_DIFF_BUDGET) break;
-            topDiff += fd;
-          }
-
-          spinner.info("Generating commit message from context...");
-          message = await suggestCommitMessageFromContext(stat, topDiff);
+        let topDiff = "";
+        for (const fd of fileDiffs) {
+          if (topDiff.length + fd.length > FALLBACK_DIFF_BUDGET) break;
+          topDiff += fd;
         }
+
+        spinner.info("Generating commit message...");
+        const message = await suggestCommitMessageFromContext(stat, topDiff);
 
         spinner.succeed("Commit message ready!");
 

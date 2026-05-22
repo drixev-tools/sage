@@ -1,4 +1,4 @@
-# muse-node
+# sage
 
 > AI-powered Git assistant CLI — smarter commits, PR summaries, code reviews & risk analysis
 
@@ -6,9 +6,9 @@ Built with **Node.js + TypeScript**, supports **Claude, OpenAI, and Ollama**, an
 
 ---
 
-## Why muse-node?
+## Why sage?
 
-Writing good commit messages is painful. PR descriptions are even worse. `muse-node` reads your actual code changes and generates meaningful, conventional commit messages, PR descriptions, code reviews, and risk reports — using your own API key, stored securely on your machine.
+Writing good commit messages is painful. PR descriptions are even worse. `sage` reads your actual code changes and generates meaningful, conventional commit messages, PR descriptions, code reviews, and risk reports — using your own API key, stored securely on your machine.
 
 **Your key never touches this codebase.**
 
@@ -17,9 +17,9 @@ Writing good commit messages is painful. PR descriptions are even worse. `muse-n
 ## Install
 
 ```bash
-npm install -g muse-node
+npm install -g sage
 # or
-pnpm add -g muse-node
+pnpm add -g sage
 ```
 
 ---
@@ -31,35 +31,35 @@ pnpm add -g muse-node
 Get your key at [console.anthropic.com](https://console.anthropic.com) and run:
 
 ```bash
-muse-node auth -a claude -k sk-ant-xxxxxxxxxx -m claude-haiku-4-5-20251001
+sage auth -a claude -k sk-ant-xxxxxxxxxx -m claude-haiku-4-5-20251001
 ```
 
 ### OpenAI
 
 ```bash
-muse-node auth -a openai -k sk-xxxxxxxxxx -m gpt-4o-mini
+sage auth -a openai -k sk-xxxxxxxxxx -m gpt-4o-mini
 ```
 
 ### Ollama (local)
 
 ```bash
-muse-node auth -a ollama -m llama3.2 -u http://localhost:11434
+sage auth -a ollama -m llama3.2 -u http://localhost:11434
 ```
 
-Your config is saved to `~/.config/muse-node/config.json` with restricted permissions (`0o600`). It never leaves your machine.
+Your config is saved to `~/.config/sage/config.json` with restricted permissions (`0o600`). It never leaves your machine.
 
 ---
 
 ## Commands
 
-### `muse-node commit`
+### `sage commit`
 
 Analyzes your staged changes and suggests a [Conventional Commit](https://www.conventionalcommits.org/) message. For small-to-medium diffs a single AI call is made; for large diffs the tool uses `git diff --stat` plus the most-changed files to stay within context limits.
 
 ```bash
 git add .
-muse-node commit          # show suggestion, confirm manually
-muse-node commit --yes    # commit immediately with the suggested message
+sage commit          # show suggestion, confirm manually
+sage commit --yes    # commit immediately with the suggested message
 ```
 
 | Flag | Description |
@@ -68,15 +68,15 @@ muse-node commit --yes    # commit immediately with the suggested message
 
 ---
 
-### `muse-node review`
+### `sage review`
 
 Reviews code quality: readability, complexity, duplication, and best practices.
 
 ```bash
-muse-node review                        # review staged changes
-muse-node review --changes              # review all uncommitted changes
-muse-node review --file src/foo.ts      # review a specific file's staged diff
-muse-node review --generate             # also save the review to a markdown file
+sage review                        # review staged changes
+sage review --changes              # review all uncommitted changes
+sage review --file src/foo.ts      # review a specific file's staged diff
+sage review --generate             # also save the review to a markdown file
 ```
 
 | Flag | Description |
@@ -87,15 +87,15 @@ muse-node review --generate             # also save the review to a markdown fil
 
 ---
 
-### `muse-node risk`
+### `sage risk`
 
 Identifies security vulnerabilities and operational risks. By default it scans the entire tracked codebase; use flags to narrow the scope to your current changes.
 
 ```bash
-muse-node risk                  # analyze whole codebase
-muse-node risk --staged         # analyze only staged changes
-muse-node risk --changes        # analyze staged + unstaged changes
-muse-node risk --generate       # also save the report to a markdown file
+sage risk                  # analyze whole codebase
+sage risk --staged         # analyze only staged changes
+sage risk --changes        # analyze staged + unstaged changes
+sage risk --generate       # also save the report to a markdown file
 ```
 
 | Flag | Description |
@@ -108,14 +108,14 @@ Output includes a per-file severity table, detailed risk breakdown, and an overa
 
 ---
 
-### `muse-node summary`
+### `sage summary`
 
 Generates a Pull Request description from your recent commits.
 
 ```bash
-muse-node summary             # last 10 commits
-muse-node summary -n 20      # last 20 commits
-muse-node summary --generate  # also save the summary to a markdown file
+sage summary             # last 10 commits
+sage summary -n 20      # last 20 commits
+sage summary --generate  # also save the summary to a markdown file
 ```
 
 | Flag | Description |
@@ -125,13 +125,13 @@ muse-node summary --generate  # also save the summary to a markdown file
 
 ---
 
-### `muse-node auth`
+### `sage auth`
 
 Configure your AI provider, API key, model, language, and connection settings.
 
 ```bash
-muse-node auth -a claude -k <key> -m <model>
-muse-node auth -a ollama -m llama3.2 -u http://localhost:11434
+sage auth -a claude -k <key> -m <model>
+sage auth -a ollama -m llama3.2 -u http://localhost:11434
 ```
 
 | Flag | Description | Default |
@@ -146,14 +146,14 @@ muse-node auth -a ollama -m llama3.2 -u http://localhost:11434
 
 ---
 
-### `muse-node config`
+### `sage config`
 
 Display your current configuration.
 
 ```bash
-muse-node config              # show all settings
-muse-node config --apikey     # show only the API key
-muse-node config --model      # show only the model
+sage config              # show all settings
+sage config --apikey     # show only the API key
+sage config --model      # show only the model
 ```
 
 | Flag | Description |
@@ -174,7 +174,7 @@ muse-node config --model      # show only the model
 | CLI framework | Commander.js | Lightweight, widely adopted, great subcommand support |
 | AI providers | Claude, OpenAI, Ollama | Flexibility: cloud or fully local |
 | Database | SQLite via better-sqlite3 | Zero-config, local, no server needed for a CLI tool |
-| Key storage | `~/.config/muse-node/` | Standard XDG pattern, same as AWS CLI and GitHub CLI |
+| Key storage | `~/.config/sage/` | Standard XDG pattern, same as AWS CLI and GitHub CLI |
 | Package manager | pnpm | Faster installs, disk-efficient, deterministic lockfile |
 
 ---
@@ -190,8 +190,8 @@ muse-node config --model      # show only the model
 ## Local development
 
 ```bash
-git clone https://github.com/drixev-tools/muse-node
-cd muse-node
+git clone https://github.com/drixev-tools/sage
+cd sage
 pnpm install
 pnpm dev commit       # run without building
 pnpm build            # compile to dist/

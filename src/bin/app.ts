@@ -15,7 +15,7 @@ const program = new Command();
 program
   .name(APPNAME)
   .description(
-    "IA-powered git agent - smarter commits, PR summaries, code review and risk",
+    "AI-powered Git assistant CLI — smarter commits, PR summaries, code reviews & risk analysis",
   )
   .version("0.1.0");
 

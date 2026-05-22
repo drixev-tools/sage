@@ -1,0 +1,39 @@
+name: Publish to npm
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1. Instalar pnpm ANTES de setup-node para que el cache funcione
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      # 2. setup-node con registry-url habilita NODE_AUTH_TOKEN para publicar
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org/
+          cache: pnpm             # cachea node_modules entre runs
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm run lint
+
+      - run: pnpm run build       # compila a dist/
+
+      # 3. --no-git-checks evita que pnpm falle por estado del repo en CI
+      - run: pnpm publish --access public --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_SAGE }}

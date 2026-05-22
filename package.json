@@ -1,11 +1,11 @@
 {
-  "name": "muse-node",
+  "name": "@drixev/sage",
   "version": "1.0.0",
   "description": "IA-powered git assistant CLI - smarter commits, PR summaries & code reviews",
   "main": "index.js",
   "type": "module",
   "bin": {
-    "muse-node": "./dist/bin/app.js"
+    "sage": "./dist/bin/app.js"
   },
   "scripts": {
     "build": "tsc --noEmit && node esbuild.js",
@@ -16,7 +16,8 @@
   },
   "keywords": [
     "git",
-    "muse-node",
+    "drixev",
+    "sage",
     "ai",
     "cli",
     "anthropic"
@@ -24,6 +25,10 @@
   "author": "drixev",
   "license": "MIT",
   "packageManager": "pnpm@10.33.4",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/drixev-tools/sage"
+  },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^25.6.0",
