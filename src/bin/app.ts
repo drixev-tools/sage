@@ -1,4 +1,8 @@
 #!/usr/bin/env node
+
+// Suppress Node.js experimental warnings (node:sqlite is experimental in Node 22)
+process.removeAllListeners("warning");
+
 import { Command } from "commander";
 import { registerAuthCommand } from "../commands/auth";
 import { registerCommitCommand } from "../commands/commit";
@@ -9,6 +13,7 @@ import { registerConfigCommand } from "../commands/config";
 
 import { registerReviewCommand } from "../commands/review";
 import chalk from "chalk";
+import { registerStatsCommand } from "../commands/stats";
 
 const program = new Command();
 
@@ -25,6 +30,6 @@ registerCommitCommand(program);
 registerSummaryCommand(program);
 registerRiskCommand(program);
 registerReviewCommand(program);
-// stats - pending
+registerStatsCommand(program);
 
 program.parse();

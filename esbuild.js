@@ -4,7 +4,7 @@ await build({
     entryPoints: ["src/bin/app.ts"],
     bundle: true,
     platform: 'node',
-    target: 'node18',
+    target: 'node22',
     format: 'esm',
     outfile: 'dist/bin/app.js',
     sourcemap: true,

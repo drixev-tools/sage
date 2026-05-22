@@ -5,7 +5,13 @@
 
 > AI-powered Git assistant CLI — smarter commits, PR summaries, code reviews & risk analysis
 
-Built with **Node.js + TypeScript**, supports **Claude, OpenAI, and Ollama**, and stores your commit history locally with **SQLite**.
+Built with **Node.js + TypeScript**, supports **Claude, OpenAI, and Ollama**, and stores your commit history locally using **Node's built-in SQLite** — no native addons, no compilation step.
+
+---
+
+## Requirements
+
+- **Node.js >= 22.15.0** — uses the built-in `node:sqlite` module
 
 ---
 
@@ -20,9 +26,9 @@ Writing good commit messages is painful. PR descriptions are even worse. `sage` 
 ## Install
 
 ```bash
-npm install -g sage
+npm install -g @drixev/sage
 # or
-pnpm add -g sage
+pnpm add -g @drixev/sage
 ```
 
 ---
@@ -117,7 +123,7 @@ Generates a Pull Request description from your recent commits.
 
 ```bash
 sage summary             # last 10 commits
-sage summary -n 20      # last 20 commits
+sage summary -n 20       # last 20 commits
 sage summary --generate  # also save the summary to a markdown file
 ```
 
@@ -125,6 +131,18 @@ sage summary --generate  # also save the summary to a markdown file
 |---|---|
 | `-n, --number <n>` | Number of recent commits to analyze (default: `10`) |
 | `-g, --generate` | Save the summary to a markdown file |
+
+---
+
+### `sage stats`
+
+Shows your local commit history tracked by sage: total commits, most used commit types, and recent activity.
+
+```bash
+sage stats
+```
+
+Data is stored locally in `~/.config/sage/sage.db` and never leaves your machine.
 
 ---
 
@@ -176,7 +194,8 @@ sage config --model      # show only the model
 | Language | TypeScript | Type safety in CLI error handling is critical |
 | CLI framework | Commander.js | Lightweight, widely adopted, great subcommand support |
 | AI providers | Claude, OpenAI, Ollama | Flexibility: cloud or fully local |
-| Database | SQLite via better-sqlite3 | Zero-config, local, no server needed for a CLI tool |
+| Config storage | `config.json` | Human-readable, XDG standard, easy to inspect |
+| Commit history | SQLite via `node:sqlite` | Built into Node 22 — no native addons, no compilation |
 | Key storage | `~/.config/sage/` | Standard XDG pattern, same as AWS CLI and GitHub CLI |
 | Package manager | pnpm | Faster installs, disk-efficient, deterministic lockfile |
 

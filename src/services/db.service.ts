@@ -1,5 +1,5 @@
 import { join } from "path";
-import Database from "better-sqlite3";
+import { DatabaseSync } from "node:sqlite";
 import { existsSync } from "fs";
 import { CommitRecord, CommitStats } from "../types/db.types";
 import { APPNAME, HOME_DIR } from "../lib/constants";
@@ -7,12 +7,12 @@ import { mkdir } from "fs/promises";
 
 const DB_PATH = join(HOME_DIR, `${APPNAME}.db`);
 
-async function getDB(): Promise<Database.Database> {
+async function getDB(): Promise<DatabaseSync> {
   if (!existsSync(HOME_DIR)) {
     await mkdir(HOME_DIR, { recursive: true });
   }
 
-  const db = new Database(DB_PATH);
+  const db = new DatabaseSync(DB_PATH);
 
   db.exec(`
         CREATE TABLE IF NOT EXISTS commits (
@@ -42,7 +42,7 @@ export async function getStats(): Promise<CommitStats> {
   const db = await getDB();
 
   const totalCommits = (
-    db.prepare(`SELECT COUNT(*) as count FROM commits`).get() as {
+    db.prepare(`SELECT COUNT(id) as count FROM commits`).get() as {
       count: number;
     }
   ).count;
