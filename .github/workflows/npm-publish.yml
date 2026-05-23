@@ -16,9 +16,8 @@ jobs:
       - uses: actions/checkout@v4
 
       # 1. Instalar pnpm ANTES de setup-node para que el cache funcione
+      # La versión se toma automáticamente del campo "packageManager" en package.json
       - uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       # 2. setup-node con registry-url habilita NODE_AUTH_TOKEN para publicar
       - uses: actions/setup-node@v4
@@ -30,6 +29,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - run: pnpm run lint
+
+      - run: pnpm run test
 
       - run: pnpm run build       # compila a dist/
 
