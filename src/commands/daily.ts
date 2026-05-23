@@ -28,7 +28,7 @@ export function registerDailyCommand(program: Command) {
         process.exit(1);
       }
 
-      const spinner = ora("Analyzing your commits, wait...").start();
+      const spinner = ora(`Analyzing last ${n} commit(s)...`).start();
       const diff = getRecentCommits(n);
 
       try {
