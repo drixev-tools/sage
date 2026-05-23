@@ -22,12 +22,16 @@ import {
   buildFullReport,
   printRiskTable,
   printFileRisk,
+  printLabelAndDetailChalk,
+  printTitleChalk,
 } from "../lib/print.helpers";
 
 export function registerRiskCommand(program: Command) {
   program
     .command("risk")
-    .description("Identify security vulnerabilities and operational risks in your codebase or changes")
+    .description(
+      "Identify security vulnerabilities and operational risks in your codebase or changes",
+    )
     .option(
       "--changes",
       "Analyze only current uncommitted changes (staged + unstaged)",
@@ -38,7 +42,11 @@ export function registerRiskCommand(program: Command) {
     )
     .option("-g, --generate", "Save the report to a markdown file")
     .action(
-      async (options: { changes: boolean; staged: boolean; generate: boolean }) => {
+      async (options: {
+        changes: boolean;
+        staged: boolean;
+        generate: boolean;
+      }) => {
         if (!isInsideGitRepo()) {
           console.error(chalk.red("Not inside a Git repository\n"));
           process.exit(1);
@@ -146,23 +154,21 @@ export function registerRiskCommand(program: Command) {
             (d) => d.message.severity !== "low",
           );
           if (highlighted.length > 0) {
-            console.log(
-              chalk.bold.cyan("\n── Detailed Risks " + "─".repeat(44) + "\n"),
-            );
+            console.log(printTitleChalk("Detailed Risks"));
             for (const detail of highlighted) {
               printFileRisk(detail);
             }
           }
 
-          console.log(
-            chalk.bold.cyan("\n── Overall Summary " + "─".repeat(43) + "\n"),
-          );
+          console.log(printTitleChalk('Overall Summary'));
           console.log(chalk.cyan(overallMessage));
 
           if (options.generate) {
             const fullReport = buildFullReport(perFile, overallMessage);
             const destinyPath = await generateDoc(fullReport, "risk");
-            console.info(chalk.greenBright(`\n[Report saved]: ${destinyPath}`));
+            console.info(
+              printLabelAndDetailChalk("[Report saved]", destinyPath),
+            );
           }
         } catch (error) {
           spinner.fail("Something went wrong");

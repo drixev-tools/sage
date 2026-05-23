@@ -12,7 +12,6 @@ function sanitizeText(input: string): string {
   return input.replace(/\0/g, "").slice(0, MAX_TEXT_CHARS);
 }
 
-// Validates against the same allowlist Commander enforces at CLI level
 function sanitizeLanguage(input: string): string {
   return LANGUAGES_SUPPORTED.includes(input) ? input : "en";
 }
@@ -185,6 +184,44 @@ export const getSummaryPRMessage = (commits: string[], language: string) => {
     - ## Summary — 2-3 sentences describing the purpose and scope of this PR
     - ## Changes — bullet list of the key changes made
     - ## Testing Notes — how to verify the changes; omit this section if the changes are trivial or self-evident
+  `;
+};
+
+export const getDailyScrumMessage = (commits: string[], language: string) => {
+  const safe = commits.map(sanitizeText);
+  return `
+    You are a senior developer preparing a Daily Scrum update for your team.
+    Based on the following commits, generate TWO versions of a spoken daily scrum update
+    that answers "What did I work on?" and "What am I working on next?" in a natural,
+    conversational tone — as if you are speaking out loud in a stand-up meeting.
+
+    Commits:
+    <commits>
+    ${safe.map((c, i) => `${i + 1}. ${c}`).join("\n")}
+    </commits>
+
+    Rules:
+    - Both updates MUST be written in '${sanitizeLanguage(language)}'
+    - Write in first person ("I worked on…", "I'm going to…")
+    - Derive "next steps" from the natural continuation implied by the commits
+    - Do NOT use markdown headers or bullet lists — write flowing spoken sentences
+    - Return ONLY a valid JSON object. No markdown, no code blocks, no extra text.
+
+    Return this exact JSON structure:
+    {
+      "short": {
+        "label": "Quick Stand-up (30 seconds)",
+        "yesterday": "One sentence summarising what was done.",
+        "today": "One sentence on what comes next.",
+        "blockers": "None. | One sentence if a blocker is evident from the commits."
+      },
+      "medium": {
+        "label": "Full Stand-up (2 minutes)",
+        "yesterday": "Two or three sentences covering the main areas of work with brief context on why.",
+        "today": "Two or three sentences on the planned next steps and their purpose.",
+        "blockers": "None. | One or two sentences if a blocker or risk is evident from the commits."
+      }
+    }
   `;
 };
 

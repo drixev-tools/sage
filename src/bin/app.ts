@@ -12,8 +12,8 @@ import { APPNAME } from "../lib/constants";
 import { registerConfigCommand } from "../commands/config";
 
 import { registerReviewCommand } from "../commands/review";
-import chalk from "chalk";
 import { registerStatsCommand } from "../commands/stats";
+import { registerDailyCommand } from "../commands/daily";
 
 const program = new Command();
 
@@ -31,5 +31,6 @@ registerSummaryCommand(program);
 registerRiskCommand(program);
 registerReviewCommand(program);
 registerStatsCommand(program);
+registerDailyCommand(program);
 
 program.parse();

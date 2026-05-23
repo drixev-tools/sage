@@ -11,19 +11,26 @@ import {
 import { reviewChanges } from "../services/ai.service";
 import { generateDoc } from "../services/file.service";
 import { APPNAME } from "../lib/constants";
+import {
+  printLabelAndDetailChalk,
+  printTitleChalk,
+} from "../lib/print.helpers";
 
 export function registerReviewCommand(program: Command) {
   program
     .command("review")
-    .description("Review code quality: readability, complexity, duplication and best practices")
-    .option("-f, --file <file>", "Review a specific file's staged diff")
-    .option(
-      "--changes",
-      "Review all uncommitted changes (staged + unstaged)",
+    .description(
+      "Review code quality: readability, complexity, duplication and best practices",
     )
+    .option("-f, --file <file>", "Review a specific file's staged diff")
+    .option("--changes", "Review all uncommitted changes (staged + unstaged)")
     .option("-g, --generate", "Save the review to a markdown file")
     .action(
-      async (options: { file?: string; changes: boolean; generate: boolean }) => {
+      async (options: {
+        file?: string;
+        changes: boolean;
+        generate: boolean;
+      }) => {
         if (!isInsideGitRepo()) {
           console.error(chalk.red("Not inside a Git repository\n"));
           process.exit(1);
@@ -44,7 +51,9 @@ export function registerReviewCommand(program: Command) {
             if (!files.length) {
               spinner.warn("No uncommitted changes found");
               console.log(
-                chalk.dim("No tracked file changes detected in the working tree.\n"),
+                chalk.dim(
+                  "No tracked file changes detected in the working tree.\n",
+                ),
               );
               process.exit(0);
             }
@@ -74,14 +83,14 @@ export function registerReviewCommand(program: Command) {
 
           spinner.succeed("Review ready!\n");
 
-          console.log(
-            chalk.bold.cyan("── Code Review " + "─".repeat(47) + "\n"),
-          );
-          console.log(`${chalk.white(message)}\n`);
+          console.log(printTitleChalk("Code Review"));
+          console.log(`${chalk.cyan(message)}\n`);
 
           if (options.generate) {
             const destinyPath = await generateDoc(message, "review");
-            console.info(chalk.greenBright(`[Report saved]: ${destinyPath}`));
+            console.info(
+              printLabelAndDetailChalk("[Report saved!]", destinyPath),
+            );
           }
         } catch (error) {
           spinner.fail("Something went wrong");

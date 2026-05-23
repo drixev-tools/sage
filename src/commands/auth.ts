@@ -8,11 +8,14 @@ import {
   APPNAME,
   LANGUAGES_SUPPORTED,
 } from "../lib/constants";
+import { printSuccessChalk, printTitleChalk } from "../lib/print.helpers";
 
 export function registerAuthCommand(program: Command): void {
   program
     .command("auth")
-    .description("Set up your AI provider, API key, model and language preferences")
+    .description(
+      "Set up your AI provider, API key, model and language preferences",
+    )
     .addOption(
       new Option(
         "-a, --agent <agent>",
@@ -51,7 +54,11 @@ export function registerAuthCommand(program: Command): void {
             new URL(options.url);
           } catch {
             spinner.fail("Invalid URL");
-            console.error(chalk.red(`Invalid URL format: "${options.url}". Provide a valid URL, e.g. http://localhost:11434`));
+            console.error(
+              chalk.red(
+                `Invalid URL format: "${options.url}". Provide a valid URL, e.g. http://localhost:11434`,
+              ),
+            );
             process.exit(1);
           }
         }
@@ -63,7 +70,7 @@ export function registerAuthCommand(program: Command): void {
           lang: options.lang,
           timeout: options.timeout,
           maxRetries: options.maxRetries,
-          url: options.url
+          url: options.url,
         };
 
         const status = await saveConfig(config);
@@ -74,14 +81,15 @@ export function registerAuthCommand(program: Command): void {
         }
 
         if (status.warnings?.length) {
+          console.log(printTitleChalk("Warnings"));
           status.warnings.forEach((m) => {
-            console.error(chalk.yellow(m));
+            console.error("\t" + chalk.yellow(m));
           });
         }
 
         spinner.succeed("Configuration ready!");
 
-        console.log(chalk.green("\n Saved!\n"));
+        console.log(printSuccessChalk("Saved!"));
       } catch (error) {
         spinner.fail("Something went wrong");
         console.error(chalk.red((error as Error).message));

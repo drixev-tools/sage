@@ -1,6 +1,10 @@
-import { Command, Option } from "commander";
+import { Command } from "commander";
 import { getConfig } from "../services/config.service";
 import chalk from "chalk";
+import {
+  printLabelAndDetailChalk,
+  printTitleChalk,
+} from "../lib/print.helpers";
 
 export function registerConfigCommand(program: Command) {
   program
@@ -20,10 +24,14 @@ export function registerConfigCommand(program: Command) {
         maxRetries: boolean;
       }) => {
         const config = await getConfig();
-        const specificFlag = options.apikey || options.model || options.timeout || options.maxRetries;
+        const specificFlag =
+          options.apikey ||
+          options.model ||
+          options.timeout ||
+          options.maxRetries;
         const showAll = options.all || !specificFlag;
 
-        console.log(chalk.bgCyan("Your current settings are: \n"));
+        console.log(printTitleChalk("Your current settings are"));
         if (showAll) {
           Object.entries(config).forEach(([key, val]) => {
             console.log(chalk.cyan(`\t*${key}: ${val}`));
@@ -32,13 +40,15 @@ export function registerConfigCommand(program: Command) {
         }
 
         if (options.apikey)
-          console.log(chalk.cyan(`\tapikey: ${config.apikey}\n`));
+          console.log(printLabelAndDetailChalk("apikey", config.apikey ?? ""));
         if (options.model)
-          console.log(chalk.cyan(`\tmodel: ${config.model}\n`));
+          console.log(printLabelAndDetailChalk("model", config.model ?? ""));
         if (options.timeout)
-          console.log(chalk.cyan(`\ttimeout: ${config.timeout}\n`));
+          console.log(printLabelAndDetailChalk("timeout", `${config.timeout}`));
         if (options.maxRetries)
-          console.log(chalk.cyan(`\tmaxRetries: ${config.maxRetries}\n`));
+          console.log(
+            printLabelAndDetailChalk("maxRetries", `${config.maxRetries}`),
+          );
       },
     );
 }

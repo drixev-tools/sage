@@ -8,7 +8,10 @@ const SEVERITY_COLOR: Record<string, ChalkInstance> = {
 };
 
 export function printRiskTable(details: RiskDetail[]): void {
-  const FILE_W = Math.min(40, Math.max(4, ...details.map((d) => d.file.length)));
+  const FILE_W = Math.min(
+    40,
+    Math.max(4, ...details.map((d) => d.file.length)),
+  );
   const SEV_W = 8;
   const SUM_W = 36;
   const REC_W = 36;
@@ -123,4 +126,16 @@ export function buildFullReport(
 
   lines.push("## Overall Summary\n", overallSummary);
   return lines.join("\n");
+}
+
+export function printLabelAndDetailChalk(label: string, desc: string) {
+  return chalk.green(`\t${label}: `) + chalk.cyan(desc);
+}
+
+export function printTitleChalk(title: string) {
+  return chalk.bold.green(`── ${title} ` + "─".repeat(47) + "\n");
+}
+
+export function printSuccessChalk(message: string) {
+  return "\n" + chalk.green(message) + "\n";
 }

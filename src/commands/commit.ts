@@ -13,6 +13,7 @@ import ora from "ora";
 import { suggestCommitMessageFromContext } from "../services/ai.service";
 import { saveCommit } from "../services/db.service";
 import { APPNAME, FALLBACK_DIFF_BUDGET } from "../lib/constants";
+import { printSuccessChalk, printTitleChalk } from "../lib/print.helpers";
 
 export function registerCommitCommand(program: Command): void {
   program
@@ -53,7 +54,7 @@ export function registerCommitCommand(program: Command): void {
 
         spinner.succeed("Commit message ready!");
 
-        console.log(chalk.bold("\nSuggested commit:\n"));
+        console.log(printTitleChalk("Suggested commit"));
         console.log(chalk.cyan(`\t${message}\n`));
 
         if (options.yes) {
@@ -73,7 +74,7 @@ export function registerCommitCommand(program: Command): void {
             filesChanged: getChangedFilesCount(),
           });
 
-          console.log(chalk.green("\n Committed!\n"));
+          console.log(printSuccessChalk("Committed!"));
         } else {
           console.log(
             chalk.dim(

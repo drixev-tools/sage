@@ -8,8 +8,10 @@ import {
   getFileRisk,
   getSummaryOfRisk,
   getSummaryPRMessage,
+  getDailyScrumMessage,
 } from "../lib/prompts";
 import { RiskDetail } from "../types/risk.types";
+import { DailySpeach } from "../types/daily.types";
 
 async function getLanguage(): Promise<string> {
   const { lang } = await getConfig();
@@ -98,4 +100,18 @@ export async function suggestSummaryOfRisk(
     message: getSummaryOfRisk(observations, await getLanguage()),
   });
   return message;
+}
+
+export async function suggestDailyReport(
+  commits: string[],
+): Promise<DailySpeach> {
+  const client = await getClient();
+  const response = await client.create({
+    max_tokens: 512,
+    message: getDailyScrumMessage(commits, await getLanguage()),
+  });
+
+  const report = JSON.parse(response);
+
+  return report;
 }

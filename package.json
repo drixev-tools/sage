@@ -12,7 +12,10 @@
     "dev": "tsx src/bin/app.ts",
     "start": "node dist/bin/app.js",
     "lint": "eslint src --ext .ts",
-    "prepublishOnly": "pnpm run build"
+    "prepublishOnly": "pnpm run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [
     "git",
@@ -31,9 +34,11 @@
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
+    "@vitest/coverage-v8": "^4.1.7",
     "esbuild": "^0.28.0",
     "tsx": "^4.21.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.7"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.95.0",
