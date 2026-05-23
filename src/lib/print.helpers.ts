@@ -133,7 +133,7 @@ export function printLabelAndDetailChalk(label: string, desc: string) {
 }
 
 export function printTitleChalk(title: string) {
-  return chalk.bold.green(`── ${title} ` + "─".repeat(47) + "\n");
+  return chalk.bold.green(`── ${title} ` + "─".repeat(47));
 }
 
 export function printSuccessChalk(message: string) {

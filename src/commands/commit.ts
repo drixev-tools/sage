@@ -55,7 +55,7 @@ export function registerCommitCommand(program: Command): void {
         spinner.succeed("Commit message ready!");
 
         console.log(printTitleChalk("Suggested commit"));
-        console.log(chalk.cyan(`\t${message}\n`));
+        console.log("\t" + chalk.cyan(message) + "\n");
 
         if (options.yes) {
           spinner.info("Commiting using the suggested message...");
@@ -66,7 +66,7 @@ export function registerCommitCommand(program: Command): void {
             process.exit(1);
           }
 
-          spinner.info("Commit succefully!");
+          spinner.succeed("Commit succefully!");
 
           saveCommit({
             repo: getCurrentRepo(),

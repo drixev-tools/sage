@@ -159,11 +159,11 @@ describe("daily command", () => {
         SAMPLE_REPORT.short.yesterday,
       );
       expect(mocks.printLabelAndDetailChalk).toHaveBeenCalledWith(
-        "Today",
+        "Today*",
         SAMPLE_REPORT.short.today,
       );
       expect(mocks.printLabelAndDetailChalk).toHaveBeenCalledWith(
-        "Blockers",
+        "Blockers*",
         SAMPLE_REPORT.short.blockers,
       );
     });
@@ -180,11 +180,11 @@ describe("daily command", () => {
         SAMPLE_REPORT.medium.yesterday,
       );
       expect(mocks.printLabelAndDetailChalk).toHaveBeenCalledWith(
-        "Today",
+        "Today*",
         SAMPLE_REPORT.medium.today,
       );
       expect(mocks.printLabelAndDetailChalk).toHaveBeenCalledWith(
-        "Blockers",
+        "Blockers*",
         SAMPLE_REPORT.medium.blockers,
       );
     });
@@ -206,6 +206,13 @@ describe("daily command", () => {
       const p = makeProgram();
       await p.parseAsync(["node", "app", "daily", "--commits", "10"]);
       expect(mocks.getRecentCommits).toHaveBeenCalledWith("10");
+    });
+
+    it("prints the '* Optional suggestion' footer after the report", async () => {
+      const p = makeProgram();
+      await p.parseAsync(["node", "app", "daily"]);
+      const allArgs = vi.mocked(console.log).mock.calls.flat().join(" ");
+      expect(allArgs).toContain("* Optional suggestion");
     });
   });
 

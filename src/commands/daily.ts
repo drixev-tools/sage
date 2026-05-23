@@ -42,9 +42,9 @@ export function registerDailyCommand(program: Command) {
         console.log(
           printLabelAndDetailChalk("Yesterday", response.short.yesterday),
         );
-        console.log(printLabelAndDetailChalk("Today", response.short.today));
+        console.log(printLabelAndDetailChalk("Today*", response.short.today));
         console.log(
-          printLabelAndDetailChalk("Blockers", response.short.blockers),
+          printLabelAndDetailChalk("Blockers*", response.short.blockers),
         );
 
         console.log(printTitleChalk("Medium"));
@@ -52,10 +52,12 @@ export function registerDailyCommand(program: Command) {
         console.log(
           printLabelAndDetailChalk("Yesterday", response.medium.yesterday),
         );
-        console.log(printLabelAndDetailChalk("Today", response.medium.today));
+        console.log(printLabelAndDetailChalk("Today*", response.medium.today));
         console.log(
-          printLabelAndDetailChalk("Blockers", response.medium.blockers),
+          printLabelAndDetailChalk("Blockers*", response.medium.blockers),
         );
+
+        console.log("\t\n"+chalk.dim("* Optional suggestion"))
       } catch (error) {
         process.exit(1);
       }

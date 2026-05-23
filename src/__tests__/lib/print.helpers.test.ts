@@ -179,9 +179,9 @@ describe("print.helpers", () => {
       expect(result).toContain("──");
     });
 
-    it("ends with a newline", () => {
+    it("does not contain a trailing newline", () => {
       const result = printTitleChalk("Title");
-      expect(result).toContain("\n");
+      expect(result.endsWith("\n")).toBe(false);
     });
   });
 
