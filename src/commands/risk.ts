@@ -135,8 +135,8 @@ export function registerRiskCommand(program: Command) {
               try {
                 return {
                   file: r.file,
-                  message: JSON.parse(r.message),
-                } as RiskDetail;
+                  message: JSON.parse(r.message) as RiskDetail["message"],
+                };
               } catch {
                 return null;
               }

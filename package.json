@@ -11,7 +11,7 @@
     "build": "tsc --noEmit && node esbuild.js",
     "dev": "tsx src/bin/app.ts",
     "start": "node dist/bin/app.js",
-    "lint": "eslint src --ext .ts",
+    "lint": "eslint src",
     "prepublishOnly": "pnpm run build",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -33,11 +33,14 @@
     "url": "https://github.com/drixev-tools/sage"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^25.6.0",
     "@vitest/coverage-v8": "^4.1.7",
     "esbuild": "^0.28.0",
+    "eslint": "^10.4.0",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.4",
     "vitest": "^4.1.7"
   },
   "dependencies": {

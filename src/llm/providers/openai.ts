@@ -61,7 +61,7 @@ export class openaiAgent {
 
     let output = result;
     if (result.includes("response")) {
-      output = JSON.parse(result).response;
+      output = (JSON.parse(result) as { response: string }).response;
     }
 
     return request.removeJumpLine ? removeJump(output) : output;

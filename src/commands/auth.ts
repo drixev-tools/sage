@@ -1,6 +1,6 @@
 import { Command, Option } from "commander";
 import { saveConfig } from "../services/config.service";
-import { Agents, Config } from "../types/config.types";
+import { Config } from "../types/config.types";
 import chalk from "chalk";
 import ora from "ora";
 import {
@@ -64,7 +64,7 @@ export function registerAuthCommand(program: Command): void {
         }
 
         const config: Config = {
-          agent: options.agent as Agents,
+          agent: options.agent,
           apikey: options.apikey,
           model: options.model,
           lang: options.lang,

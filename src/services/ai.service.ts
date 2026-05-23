@@ -111,7 +111,7 @@ export async function suggestDailyReport(
     message: getDailyScrumMessage(commits, await getLanguage()),
   });
 
-  const report = JSON.parse(response);
+  const report = JSON.parse(response) as DailySpeach;
 
   return report;
 }

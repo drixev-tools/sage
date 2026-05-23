@@ -58,7 +58,7 @@ export function registerDailyCommand(program: Command) {
         );
 
         console.log("\t\n"+chalk.dim("* Optional suggestion"))
-      } catch (error) {
+      } catch {
         process.exit(1);
       }
     });

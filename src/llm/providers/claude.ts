@@ -31,7 +31,7 @@ export class IAClaudeAgent {
       });
     } catch (err) {
       const detail = err instanceof Error ? err.message : String(err);
-      throw new Error(`Claude API request failed: ${detail}`);
+      throw new Error(`Claude API request failed: ${detail}`, { cause: err });
     }
 
     const result = this.cleanContent(message);

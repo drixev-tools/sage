@@ -10,7 +10,7 @@ async function readConfig(): Promise<Config> {
   if (!existsSync(CONFIG_PATH)) return {};
 
   try {
-    return JSON.parse(await readFile(CONFIG_PATH, { encoding: "utf-8" }));
+    return JSON.parse(await readFile(CONFIG_PATH, { encoding: "utf-8" })) as Config;
   } catch {
     return {};
   }
@@ -48,7 +48,7 @@ export async function saveConfig(updConfig: Config): Promise<{
     };
   }
 
-  let warnings: string[] = [];
+  const warnings: string[] = [];
 
   if (!existsAgent || !existsApiKey || !existsModel) {
     warnings.push(

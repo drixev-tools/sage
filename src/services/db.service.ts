@@ -64,7 +64,7 @@ export async function getStats(): Promise<CommitStats> {
   const typeCounts: Record<string, number> = {};
 
   for (const { message } of allMessages) {
-    const match = message.match(/^(\w+)[\(:]/);
+    const match = message.match(/^(\w+)[(:]/);
     if (match) {
       const type = match[1];
       typeCounts[type] = (typeCounts[type] ?? 0) + 1;

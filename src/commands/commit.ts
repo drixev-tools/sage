@@ -68,7 +68,7 @@ export function registerCommitCommand(program: Command): void {
 
           spinner.succeed("Commit succefully!");
 
-          saveCommit({
+          await saveCommit({
             repo: getCurrentRepo(),
             message,
             filesChanged: getChangedFilesCount(),
