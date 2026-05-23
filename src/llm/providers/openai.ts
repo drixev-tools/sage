@@ -57,7 +57,7 @@ export class openaiAgent {
       messages: request.messages as ChatCompletionMessageParam[],
     });
 
-    const result = removeJsonTag(message.choices[0].message.content || "");
+    const result = removeJsonTag(message?.choices[0]?.message?.content || "");
 
     let output = result;
     if (result.includes("response")) {
