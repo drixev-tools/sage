@@ -123,7 +123,7 @@ Generates a Pull Request description from your recent commits.
 
 ```bash
 sage summary             # last 10 commits
-sage summary -n 20       # last 20 commits
+sage summary -c 20       # last 20 commits
 sage summary --generate  # also save the summary to a markdown file
 ```
 
@@ -131,6 +131,21 @@ sage summary --generate  # also save the summary to a markdown file
 |---|---|
 | `-n, --number <n>` | Number of recent commits to analyze (default: `10`) |
 | `-g, --generate` | Save the summary to a markdown file |
+
+---
+
+### `sage daily`
+
+Generate a suggestion for the daily Scrum meeting based on your latest changes.
+
+```bash
+sage daily             # last 5 commits
+sage daily -c 20       # last 20 commits
+```
+
+| Flag | Description |
+|---|---|
+| `-n, --number <n>` | Number of recent commits to analyze (default: `5`) |
 
 ---
 

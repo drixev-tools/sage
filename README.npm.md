@@ -93,6 +93,13 @@ sage summary -n 20     # last 20 commits
 sage summary --generate
 ```
 
+### `sage daily` — Daily suggestions speachs from your commits
+
+```bash
+sage daily           # last 5 commits
+sage daily -n 20     # last 20 commits
+```
+
 ### `sage config` — view current settings
 
 ```bash
