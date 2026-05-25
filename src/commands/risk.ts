@@ -11,11 +11,8 @@ import {
 import chalk from "chalk";
 import { APPNAME } from "../lib/constants";
 import ora from "ora";
-import {
-  checkRiskChanges,
-  checkFileRisk,
-  suggestSummaryOfRisk,
-} from "../services/ai.service";
+import { checkRiskChanges, checkFileRisk } from "../services/ai.service";
+import { safeParseRiskMessage } from "../lib/json.helpers";
 import { Mode, RiskDetail } from "../types/risk.types";
 import { generateDoc } from "../services/file.service";
 import {
@@ -25,6 +22,8 @@ import {
   printLabelAndDetailChalk,
   printTitleChalk,
 } from "../lib/print.helpers";
+import { filterSourceFiles, filterTestFiles } from "../lib/file.helpers";
+import { ensureRules } from "../services/rules.service";
 
 export function registerRiskCommand(program: Command) {
   program
@@ -40,11 +39,16 @@ export function registerRiskCommand(program: Command) {
       "-s, --staged",
       "Analyze only staged changes (requires git add first)",
     )
+    .option(
+      "-i, --ignoreTest",
+      "Analyze only the source code, ignoring the '*.test.ts' files",
+    )
     .option("-g, --generate", "Save the report to a markdown file")
     .action(
       async (options: {
         changes: boolean;
         staged: boolean;
+        ignoreTest: boolean;
         generate: boolean;
       }) => {
         if (!isInsideGitRepo()) {
@@ -54,6 +58,19 @@ export function registerRiskCommand(program: Command) {
 
         const spinner = ora("Collecting files...").start();
         try {
+          const { rules, created, path: rulesPath } = await ensureRules();
+          if (created) {
+            console.log(
+              chalk.dim(
+                `\n  Rules file created at ${rulesPath}\n` +
+                  `  Edit it to customise which extensions and noise patterns to use.\n` +
+                  `  Run: ${APPNAME} rules to view or manage it.\n`,
+              ),
+            );
+          }
+
+          const extSet = new Set(rules.sourceExtensions);
+
           let files: string[];
           let mode: Mode;
 
@@ -83,10 +100,44 @@ export function registerRiskCommand(program: Command) {
             }
           } else {
             mode = "app";
-            files = getAllTrackedFiles();
+            files = getAllTrackedFiles(extSet);
             if (!files.length) {
               spinner.warn("No tracked source files found");
               process.exit(0);
+            }
+          }
+
+          {
+            const { filtered, skipped } = filterSourceFiles(files, rules);
+            files = filtered;
+            if (!files.length) {
+              spinner.warn(
+                "No analyzable source files found after filtering noise",
+              );
+              process.exit(0);
+            }
+            if (skipped > 0) {
+              console.log(
+                chalk.dim(
+                  `  Skipped ${skipped} non-source file(s) (lock files, metadata)`,
+                ),
+              );
+            }
+          }
+
+          if (options.ignoreTest) {
+            const { filtered, skipped } = filterTestFiles(files);
+            files = filtered;
+            if (!files.length) {
+              spinner.warn(
+                "No files left to analyze after ignoring test files",
+              );
+              process.exit(0);
+            }
+            if (skipped > 0) {
+              console.log(
+                chalk.dim(`  Skipped ${skipped} test file(s) (--ignoreTest)`),
+              );
             }
           }
 
@@ -115,6 +166,10 @@ export function registerRiskCommand(program: Command) {
 
           spinner.info(`Analyzing ${entries.length} file(s) [${modeLabel}]...`);
 
+          entries.forEach((fileName) => {
+            console.info(`\t` + chalk.dim(fileName.file));
+          });
+
           const CONCURRENCY = 5;
           const rawResults: { file: string; message: string }[] = [];
 
@@ -130,21 +185,9 @@ export function registerRiskCommand(program: Command) {
             rawResults.push(...batchResults);
           }
 
-          const perFile: RiskDetail[] = rawResults
-            .map((r) => {
-              try {
-                return {
-                  file: r.file,
-                  message: JSON.parse(r.message) as RiskDetail["message"],
-                };
-              } catch {
-                return null;
-              }
-            })
-            .filter((r): r is RiskDetail => r !== null);
-
-          spinner.info("Generating overall summary...");
-          const overallMessage = await suggestSummaryOfRisk(perFile);
+          const perFile: RiskDetail[] = rawResults.map((r) =>
+            safeParseRiskMessage(r.message, r.file),
+          );
 
           spinner.succeed("Risk analysis ready!\n");
 
@@ -160,11 +203,8 @@ export function registerRiskCommand(program: Command) {
             }
           }
 
-          console.log(printTitleChalk('Overall Summary'));
-          console.log(chalk.cyan(overallMessage));
-
           if (options.generate) {
-            const fullReport = buildFullReport(perFile, overallMessage);
+            const fullReport = buildFullReport(perFile);
             const destinyPath = await generateDoc(fullReport, "risk");
             console.info(
               printLabelAndDetailChalk("[Report saved]", destinyPath),

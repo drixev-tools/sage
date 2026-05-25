@@ -14,6 +14,7 @@ import { registerConfigCommand } from "../commands/config";
 import { registerReviewCommand } from "../commands/review";
 import { registerStatsCommand } from "../commands/stats";
 import { registerDailyCommand } from "../commands/daily";
+import { registerRulesCommand } from "../commands/rules";
 
 const program = new Command();
 
@@ -32,5 +33,6 @@ registerRiskCommand(program);
 registerReviewCommand(program);
 registerStatsCommand(program);
 registerDailyCommand(program);
+registerRulesCommand(program);
 
 program.parse();

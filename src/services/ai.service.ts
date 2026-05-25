@@ -13,6 +13,16 @@ import {
 import { RiskDetail } from "../types/risk.types";
 import { DailySpeach } from "../types/daily.types";
 
+const MAX_RISK_INPUT_CHARS = 12_000;
+
+function truncateRiskInput(content: string): string {
+  if (content.length <= MAX_RISK_INPUT_CHARS) return content;
+  return (
+    content.slice(0, MAX_RISK_INPUT_CHARS) +
+    "\n\n[... content truncated ...]"
+  );
+}
+
 async function getLanguage(): Promise<string> {
   const { lang } = await getConfig();
   return lang ?? "en";
@@ -70,8 +80,8 @@ export async function checkRiskChanges(
 ): Promise<{ file: string; message: string }> {
   const client = await getClient();
   const message = await client.create({
-    max_tokens: 2048,
-    message: getSummaryRisks(diff, await getLanguage()),
+    max_tokens: 4096,
+    message: getSummaryRisks(truncateRiskInput(diff), await getLanguage()),
     removeJumpLine: true,
   });
 
@@ -84,8 +94,8 @@ export async function checkFileRisk(
 ): Promise<{ file: string; message: string }> {
   const client = await getClient();
   const message = await client.create({
-    max_tokens: 2048,
-    message: getFileRisk(content, file, await getLanguage()),
+    max_tokens: 4096,
+    message: getFileRisk(truncateRiskInput(content), file, await getLanguage()),
     removeJumpLine: true,
   });
   return { file, message };

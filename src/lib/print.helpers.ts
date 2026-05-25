@@ -95,10 +95,7 @@ export function printFileRisk(detail: RiskDetail): void {
   console.log(chalk.dim("  " + "─".repeat(60) + "\n"));
 }
 
-export function buildFullReport(
-  details: RiskDetail[],
-  overallSummary: string,
-): string {
+export function buildFullReport(details: RiskDetail[]): string {
   const lines: string[] = ["# Risk Analysis Report\n", "## Per-file Risks\n"];
 
   for (const detail of details) {
@@ -124,7 +121,6 @@ export function buildFullReport(
     }
   }
 
-  lines.push("## Overall Summary\n", overallSummary);
   return lines.join("\n");
 }
 

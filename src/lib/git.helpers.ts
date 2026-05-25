@@ -87,7 +87,9 @@ export function getWorkingTreeDiffPerFile(file: string): string {
   }
 }
 
-export function getAllTrackedFiles(): string[] {
+export function getAllTrackedFiles(
+  extensions: Set<string> = SOURCE_EXTENSIONS,
+): string[] {
   try {
     const output = execSync("git ls-files", { encoding: "utf-8" });
     return output
@@ -96,7 +98,7 @@ export function getAllTrackedFiles(): string[] {
       .filter(Boolean)
       .filter((f) => {
         const ext = path.extname(f).toLowerCase();
-        return SOURCE_EXTENSIONS.has(ext) && !f.endsWith(".d.ts");
+        return extensions.has(ext) && !f.endsWith(".d.ts");
       });
   } catch {
     return [];

@@ -43,8 +43,8 @@ export class openaiAgent {
       max_output_tokens: request.max_tokens,
     });
 
-    const result = removeJsonTag(message.output_text);
-    return request.removeJumpLine ? removeJump(result) : result;
+    const result = removeJsonTag(message.output_text ?? "");
+    return request.removeJumpLine ? removeJump(result) : result; 
   }
 
   async createOllamaRequest(request: MessageIARequest) {
@@ -61,7 +61,8 @@ export class openaiAgent {
 
     let output = result;
     if (result.includes("response")) {
-      output = (JSON.parse(result) as { response: string }).response;
+      const parsed = JSON.parse(result) as { response?: string };
+      output = parsed.response ?? result;
     }
 
     return request.removeJumpLine ? removeJump(output) : output;

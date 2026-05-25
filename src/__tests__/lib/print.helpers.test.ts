@@ -41,7 +41,7 @@ describe("print.helpers", () => {
   describe("buildFullReport", () => {
     it("generates markdown with header and per-file section", () => {
       const detail = makeDetail();
-      const report = buildFullReport([detail], "Overall summary");
+      const report = buildFullReport([detail]);
       expect(report).toContain("# Risk Analysis Report");
       expect(report).toContain("## Per-file Risks");
       expect(report).toContain("src/foo.ts");
@@ -49,7 +49,7 @@ describe("print.helpers", () => {
 
     it("includes severity in uppercase", () => {
       const detail = makeDetail({ severity: "high" });
-      const report = buildFullReport([detail], "");
+      const report = buildFullReport([detail]);
       expect(report).toContain("HIGH");
     });
 
@@ -58,22 +58,21 @@ describe("print.helpers", () => {
         risks: [{ id: 1, title: "SQL Injection", description: "Bad query" }],
         recommendations: ["Use parameterized queries"],
       });
-      const report = buildFullReport([detail], "");
+      const report = buildFullReport([detail]);
       expect(report).toContain("SQL Injection");
       expect(report).toContain("Use parameterized queries");
     });
 
     it("skips Risks/Recommendations sections when empty", () => {
       const detail = makeDetail({ risks: [], recommendations: [] });
-      const report = buildFullReport([detail], "");
+      const report = buildFullReport([detail]);
       expect(report).not.toContain("**Risks:**");
       expect(report).not.toContain("**Recommendations:**");
     });
 
-    it("includes overall summary section", () => {
-      const report = buildFullReport([], "All looks good");
-      expect(report).toContain("## Overall Summary");
-      expect(report).toContain("All looks good");
+    it("does not include an overall summary section", () => {
+      const report = buildFullReport([makeDetail()]);
+      expect(report).not.toContain("## Overall Summary");
     });
 
     it("handles multiple files", () => {
@@ -81,7 +80,7 @@ describe("print.helpers", () => {
         makeDetail({ severity: "low" }),
         { ...makeDetail({ severity: "high" }), file: "src/bar.ts" },
       ];
-      const report = buildFullReport(details, "");
+      const report = buildFullReport(details);
       expect(report).toContain("src/foo.ts");
       expect(report).toContain("src/bar.ts");
     });

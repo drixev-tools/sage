@@ -9,6 +9,7 @@ import {
   LANGUAGES_SUPPORTED,
 } from "../lib/constants";
 import { printSuccessChalk, printTitleChalk } from "../lib/print.helpers";
+import { ensureRules } from "../services/rules.service";
 
 export function registerAuthCommand(program: Command): void {
   program
@@ -63,6 +64,24 @@ export function registerAuthCommand(program: Command): void {
           }
         }
 
+        if(!AGENTS_SUPPORTED.includes(options.model ?? "")){
+          spinner.fail("Invalid model");
+          console.error(
+            chalk.red(
+              `Invalid model: ${options.model}. Provide a valid supported model [${AGENTS_SUPPORTED.join(',')}]`
+            )
+          )
+        }
+        
+        if(!LANGUAGES_SUPPORTED.includes(options.lang ?? "")){
+          spinner.fail("Invalid language");
+          console.error(
+            chalk.red(
+              `Invalid language: ${options.lang}. Provide a valid supported model [${LANGUAGES_SUPPORTED.join(',')}]`
+            )
+          )
+        }
+
         const config: Config = {
           agent: options.agent,
           apikey: options.apikey,
@@ -88,6 +107,18 @@ export function registerAuthCommand(program: Command): void {
         }
 
         spinner.succeed("Configuration ready!");
+
+        // Initialise ~/.config/sage/rules.json on first auth
+        const { created, path: rulesPath } = await ensureRules();
+        if (created) {
+          console.log(
+            chalk.dim(
+              `\n  Rules file initialised at ${rulesPath}\n` +
+                `  Customise it to control which file types are analysed.\n` +
+                `  Run: ${APPNAME} rules --help for options.\n`,
+            ),
+          );
+        }
 
         console.log(printSuccessChalk("Saved!"));
       } catch (error) {
