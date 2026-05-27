@@ -1,6 +1,6 @@
 {
   "name": "@drixev/sage",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "IA-powered git assistant CLI - smarter commits, PR summaries & code reviews",
   "main": "index.js",
   "type": "module",
