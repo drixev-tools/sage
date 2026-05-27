@@ -104,6 +104,7 @@ Identifies security vulnerabilities and operational risks. By default it scans t
 sage risk                  # analyze whole codebase
 sage risk --staged         # analyze only staged changes
 sage risk --changes        # analyze staged + unstaged changes
+sage risk --ignoreTest     # skip *.test.ts files from analysis
 sage risk --generate       # also save the report to a markdown file
 ```
 
@@ -111,6 +112,7 @@ sage risk --generate       # also save the report to a markdown file
 |---|---|
 | `-s, --staged` | Analyze only staged changes |
 | `--changes` | Analyze staged + unstaged changes |
+| `-i, --ignoreTest` | Skip test files (`*.test.ts`) from analysis |
 | `-g, --generate` | Save the report to a markdown file |
 
 Output includes a per-file severity table, detailed risk breakdown, and an overall summary.
@@ -129,7 +131,7 @@ sage summary --generate  # also save the summary to a markdown file
 
 | Flag | Description |
 |---|---|
-| `-n, --number <n>` | Number of recent commits to analyze (default: `10`) |
+| `-c, --commits <n>` | Number of recent commits to analyze (default: `10`) |
 | `-g, --generate` | Save the summary to a markdown file |
 
 ---
@@ -145,7 +147,7 @@ sage daily -c 20       # last 20 commits
 
 | Flag | Description |
 |---|---|
-| `-n, --number <n>` | Number of recent commits to analyze (default: `5`) |
+| `-c, --commits <n>` | Number of recent commits to analyze (default: `5`) |
 
 ---
 
@@ -199,6 +201,23 @@ sage config --model      # show only the model
 | `-m, --model` | Show model |
 | `-t, --timeout` | Show timeout |
 | `-r, --maxRetries` | Show max retries |
+
+---
+
+### `sage rules`
+
+Manage controls which files are included in analysis
+
+```bash
+sage rules              # show all rules
+sage rules --generate   # Create rules.json
+sage rules --reset      # Reset rules.json
+```
+
+| Flag | Description |
+|---|---|
+| `--generate` | Create rules.json with default values |
+| `--reset` | Overwrite rules.json with the built-in default rules |
 
 ---
 

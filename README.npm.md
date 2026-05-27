@@ -75,6 +75,8 @@ sage review --generate           # save to markdown
 ```bash
 sage risk                # whole codebase
 sage risk --staged       # staged changes only
+sage risk --changes      # staged + unstaged changes
+sage risk --ignoreTest   # skip test files from analysis
 sage risk --generate     # save report to markdown
 ```
 
@@ -89,15 +91,15 @@ sage risk --generate     # save report to markdown
 
 ```bash
 sage summary           # last 10 commits
-sage summary -n 20     # last 20 commits
+sage summary -c 20     # last 20 commits
 sage summary --generate
 ```
 
-### `sage daily` — Daily suggestions speachs from your commits
+### `sage daily` — Daily scrum speech from your commits
 
 ```bash
 sage daily           # last 5 commits
-sage daily -n 20     # last 20 commits
+sage daily -c 20     # last 20 commits
 ```
 
 ### `sage config` — view current settings
@@ -107,6 +109,23 @@ sage config
 sage config --model
 sage config --apikey
 ```
+
+---
+
+### `sage rules` — view and generate current rules
+
+```bash
+sage rules
+sage rules --generate
+sage rules --reset
+```
+
+### `sage stats` — shows your local commit history
+
+```bash
+sage stats
+```
+
 
 ---
 
