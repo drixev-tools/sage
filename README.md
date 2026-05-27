@@ -1,7 +1,7 @@
 # sage
 
 [![npm version](https://img.shields.io/npm/v/@drixev/sage.svg)](https://www.npmjs.com/package/@drixev/sage)
-[![License](https://img.shields.io/npm/l/@drixev/sage.svg)](LICENSE)
+[![License](https://img.shields.io/npm/l/@drixev/sage.svg)](LICENSE.md)
 
 > AI-powered Git assistant CLI — smarter commits, PR summaries, code reviews & risk analysis
 
